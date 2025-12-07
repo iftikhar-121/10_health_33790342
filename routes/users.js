@@ -8,6 +8,17 @@ function redirectLogin(req, res, next) {
   next();
 }
 
+async function logAudit(req, { username, action, status, details }) {
+  try {
+    await req.db.execute(
+      'INSERT INTO audit_log (username, action, status, ip, user_agent, details) VALUES (?,?,?,?,?,?)',
+      [username || 'unknown', action, status, req.ip, req.headers['user-agent'] || '', details || null]
+    );
+  } catch (e) {
+    // swallow audit errors
+  }
+}
+
 router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', errors: [], values: {} });
 });
@@ -20,7 +31,18 @@ router.post('/registered',
   body('password').isStrongPassword({ minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1 }),
   async (req, res, next) => {
     const { username, email, first_name, last_name, password } = req.body;
+    const values = { username, email, first_name, last_name };
     try {
+      // Duplicate checks
+      const [u] = await req.db.execute('SELECT user_id FROM users WHERE username = ?', [username]);
+      const [e] = await req.db.execute('SELECT user_id FROM users WHERE email = ?', [email]);
+      const errors = [];
+      if (u.length) errors.push('Username already taken');
+      if (e.length) errors.push('Email already registered');
+      // Basic validator outcome (we could use validationResult, but keeping minimal)
+      if (errors.length) {
+        return res.status(400).render('register', { title: 'Register', errors, values });
+      }
       const hashed = await bcrypt.hash(password, 10);
       await req.db.execute(
         'INSERT INTO users (username, email, hashed_password, first_name, last_name) VALUES (?,?,?,?,?)',
@@ -42,8 +64,12 @@ router.post('/loggedin', async (req, res, next) => {
     if (!rows.length) return res.render('login', { title: 'Login', message: 'Invalid credentials.' });
     const user = rows[0];
     const ok = await bcrypt.compare(password, user.hashed_password);
-    if (!ok) return res.render('login', { title: 'Login', message: 'Invalid credentials.' });
+    if (!ok) {
+      await logAudit(req, { username, action: 'login', status: 'failure', details: 'Bad password' });
+      return res.render('login', { title: 'Login', message: 'Invalid credentials.' });
+    }
     req.session.user = { user_id: user.user_id, username: user.username };
+    await logAudit(req, { username, action: 'login', status: 'success' });
     res.redirect('/');
   } catch (err) { next(err); }
 });

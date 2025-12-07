@@ -11,15 +11,20 @@
     <a href="/about">About</a>
   </nav>
   <h1>Register</h1>
+  <% if (errors && errors.length) { %>
+    <ul>
+      <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+    </ul>
+  <% } %>
   <form method="POST" action="/registered">
     <label>Username</label>
-    <input type="text" name="username" required>
+    <input type="text" name="username" required value="<%= (values && values.username) || '' %>">
     <label>Email</label>
-    <input type="email" name="email" required>
+    <input type="email" name="email" required value="<%= (values && values.email) || '' %>">
     <label>First name</label>
-    <input type="text" name="first_name" required>
+    <input type="text" name="first_name" required value="<%= (values && values.first_name) || '' %>">
     <label>Last name</label>
-    <input type="text" name="last_name" required>
+    <input type="text" name="last_name" required value="<%= (values && values.last_name) || '' %>">
     <label>Password</label>
     <input type="password" name="password" required>
     <button type="submit">Create Account</button>

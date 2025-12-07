@@ -12,35 +12,44 @@
     <a href="/workouts/list">List</a>
   </nav>
   <h1>Add Workout</h1>
+  <% if (errors && errors.length) { %>
+    <ul>
+      <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+    </ul>
+  <% } %>
   <form method="POST" action="/workouts/workout-added">
-    <label>User ID</label>
-    <input type="number" name="user_id" min="1" required>
+    <label>User</label>
+    <select name="user_id" required>
+      <% (users || []).forEach(u => { %>
+        <option value="<%= u.user_id %>" <%= (values.user_id == u.user_id) ? 'selected' : '' %>><%= u.username %></option>
+      <% }) %>
+    </select>
 
     <label>Date</label>
-    <input type="date" name="date" required>
+  <input type="date" name="date" required value="<%= values.date || '' %>">
 
     <label>Type</label>
     <select name="type" required>
-      <option value="cardio">Cardio</option>
-      <option value="strength">Strength</option>
-      <option value="flexibility">Flexibility</option>
-      <option value="balance">Balance</option>
-      <option value="sport">Sport</option>
-      <option value="other">Other</option>
+      <option value="cardio" <%= (values.type==='cardio')?'selected':'' %>>Cardio</option>
+      <option value="strength" <%= (values.type==='strength')?'selected':'' %>>Strength</option>
+      <option value="flexibility" <%= (values.type==='flexibility')?'selected':'' %>>Flexibility</option>
+      <option value="balance" <%= (values.type==='balance')?'selected':'' %>>Balance</option>
+      <option value="sport" <%= (values.type==='sport')?'selected':'' %>>Sport</option>
+      <option value="other" <%= (values.type==='other')?'selected':'' %>>Other</option>
     </select>
 
     <label>Duration (minutes)</label>
-    <input type="number" name="duration_minutes" min="0" required>
+  <input type="number" name="duration_minutes" min="0" required value="<%= values.duration_minutes || '' %>">
 
     <label>Intensity</label>
     <select name="intensity" required>
-      <option value="low">Low</option>
-      <option value="medium">Medium</option>
-      <option value="high">High</option>
+      <option value="low" <%= (values.intensity==='low')?'selected':'' %>>Low</option>
+      <option value="medium" <%= (values.intensity==='medium')?'selected':'' %>>Medium</option>
+      <option value="high" <%= (values.intensity==='high')?'selected':'' %>>High</option>
     </select>
 
     <label>Notes (optional)</label>
-    <textarea name="notes" rows="3"></textarea>
+  <textarea name="notes" rows="3"><%= values.notes || '' %></textarea>
 
     <button type="submit">Save Workout</button>
   </form>

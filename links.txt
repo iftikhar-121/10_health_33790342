@@ -1,0 +1,5 @@
+home=https://www.doc.gold.ac.uk/usr/<142>/
+about=https://www.doc.gold.ac.uk/usr/<142>/about
+search=https://www.doc.gold.ac.uk/usr/<142>/workouts/search
+add_item=https://www.doc.gold.ac.uk/usr/<142>/workouts/add-workout
+api_items=https://www.doc.gold.ac.uk/usr/<142>/api/items

@@ -35,6 +35,19 @@
         <% }) %>
       </tbody>
     </table>
+    <div>
+      <% if (typeof page !== 'undefined') { %>
+        <p>Page <%= page %> of <%= totalPages %></p>
+        <div>
+          <% if (page > 1) { %>
+            <a href="/workouts/list?page=<%= page - 1 %>">Prev</a>
+          <% } %>
+          <% if (page < totalPages) { %>
+            <a href="/workouts/list?page=<%= page + 1 %>">Next</a>
+          <% } %>
+        </div>
+      <% } %>
+    </div>
   <% } %>
   
 </body>
