@@ -6,11 +6,9 @@
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a> |
-    <a href="/about">About</a>
-  </nav>
+  <%- include('partials/nav') %>
   <h1>Register</h1>
+  <p>Password policy: at least 8 characters, one lower, one upper, one digit, one special.</p>
   <% if (errors && errors.length) { %>
     <ul>
       <% errors.forEach(e => { %><li><%= e %></li><% }) %>

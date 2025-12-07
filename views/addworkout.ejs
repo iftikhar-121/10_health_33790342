@@ -6,12 +6,11 @@
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a> |
-    <a href="/about">About</a> |
-    <a href="/workouts/list">List</a>
-  </nav>
+  <%- include('partials/nav') %>
   <h1>Add Workout</h1>
+  <% if (loadError) { %>
+    <p><%= loadError %></p>
+  <% } %>
   <% if (errors && errors.length) { %>
     <ul>
       <% errors.forEach(e => { %><li><%= e %></li><% }) %>

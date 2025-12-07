@@ -6,12 +6,7 @@
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a> |
-    <a href="/about">About</a> |
-    <a href="/workouts/search">Search</a> |
-    <a href="/workouts/add-workout">Add Workout</a>
-  </nav>
+  <%- include('partials/nav') %>
   <h1><%= title %></h1>
   <% if (!items || items.length === 0) { %>
     <p>No workouts found.</p>

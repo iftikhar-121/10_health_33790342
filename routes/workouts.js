@@ -2,6 +2,11 @@ const express = require('express');
 const { query, body } = require('express-validator');
 const router = express.Router();
 
+function redirectLogin(req, res, next) {
+  if (!req.session.user) return res.redirect('/login');
+  next();
+}
+
 router.get('/search', (req, res) => {
   res.render('search', { title: 'Search Workouts' });
 });
@@ -11,9 +16,10 @@ router.get('/search-result',
   query('type').optional().trim(),
   query('intensity').optional().trim(),
   query('mode').optional().isIn(['exact','partial']).default('partial'),
+  query('sort').optional().isIn(['date','duration','intensity']).default('date'),
   async (req, res, next) => {
     try {
-      const { q = '', type = '', intensity = '', mode = 'partial' } = req.query;
+      const { q = '', type = '', intensity = '', mode = 'partial', sort = 'date' } = req.query;
       const clauses = [];
       const params = [];
       if (q) {
@@ -28,14 +34,16 @@ router.get('/search-result',
       if (type) { clauses.push('w.type = ?'); params.push(type); }
       if (intensity) { clauses.push('w.intensity = ?'); params.push(intensity); }
       const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-      const sql = `SELECT w.*, u.username FROM workouts w JOIN users u ON w.user_id = u.user_id ${where} ORDER BY w.date DESC LIMIT 100`;
+      const sortWhitelist = { date: 'w.date DESC', duration: 'w.duration_minutes DESC', intensity: "FIELD(w.intensity,'high','medium','low') ASC" };
+      const orderBy = sortWhitelist[sort] || sortWhitelist.date;
+      const sql = `SELECT w.*, u.username FROM workouts w JOIN users u ON w.user_id = u.user_id ${where} ORDER BY ${orderBy} LIMIT 100`;
       const [rows] = await req.db.query(sql, params);
       res.render('list', { title: 'Search Results', items: rows });
     } catch (err) { next(err); }
   }
 );
 
-router.get('/list', async (req, res, next) => {
+router.get('/list', redirectLogin, async (req, res, next) => {
   try {
     const page = Math.max(parseInt(req.query.page || '1', 10), 1);
     const pageSize = 20;
@@ -50,14 +58,18 @@ router.get('/list', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-router.get('/add-workout', async (req, res, next) => {
+router.get('/add-workout', redirectLogin, async (req, res, next) => {
   try {
     const [users] = await req.db.query('SELECT user_id, username FROM users ORDER BY username');
-    res.render('addworkout', { title: 'Add Workout', errors: [], values: {}, users });
-  } catch (err) { next(err); }
+    res.render('addworkout', { title: 'Add Workout', errors: [], values: {}, users, loadError: null });
+  } catch (err) {
+    // Fall back to rendering with empty users list so the page still loads
+    console.error('Failed to load users for add-workout:', err.message);
+    res.render('addworkout', { title: 'Add Workout', errors: [], values: {}, users: [], loadError: 'Could not load users. Please try again or create a user first.' });
+  }
 });
 
-router.post('/workout-added',
+router.post('/workout-added', redirectLogin,
   body('user_id').isInt({ min: 1 }).toInt(),
   body('date').isISO8601(),
   body('type').isIn(['cardio','strength','flexibility','balance','sport','other']),

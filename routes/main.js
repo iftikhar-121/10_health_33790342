@@ -15,4 +15,15 @@ router.get('/logout', (req, res) => {
   });
 });
 
+// Legacy aliases so /search still works
+router.get('/search', (req, res) => {
+  res.redirect('/workouts/search');
+});
+
+router.get('/search-result', (req, res) => {
+  const qsIndex = req.url.indexOf('?');
+  const qs = qsIndex !== -1 ? req.url.substring(qsIndex) : '';
+  res.redirect(`/workouts/search-result${qs}`);
+});
+
 module.exports = router;

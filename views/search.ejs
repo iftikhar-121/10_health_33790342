@@ -6,13 +6,9 @@
   <link rel="stylesheet" href="/main.css">
 </head>
 <body>
-  <nav>
-    <a href="/">Home</a> |
-    <a href="/about">About</a> |
-    <a href="/search">Search</a>
-  </nav>
+  <%- include('partials/nav') %>
   <h1>Search Workouts</h1>
-  <form method="GET" action="/search-result">
+  <form method="GET" action="/workouts/search-result">
     <label>Search term</label>
     <input type="text" name="q" placeholder="type or notes">
     <label>Type</label>
