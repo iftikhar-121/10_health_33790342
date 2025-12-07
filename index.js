@@ -1,0 +1,91 @@
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const sanitizer = require('express-sanitizer');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const path = require('path');
+const mysql = require('mysql2/promise');
+
+const PORT = process.env.PORT || 8000;
+const BASE_PATH = process.env.HEALTH_BASE_PATH || `http://localhost:${PORT}`;
+
+// MySQL pool
+const pool = mysql.createPool({
+  host: process.env.HEALTH_HOST,
+  user: process.env.HEALTH_USER,
+  password: process.env.HEALTH_PASSWORD,
+  database: process.env.HEALTH_DATABASE,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+const app = express();
+
+// View engine
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Middleware
+app.use(helmet());
+app.use(morgan('dev'));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(sanitizer());
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'changeme',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true }
+}));
+
+// Static
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Attach pool to request
+app.use((req, res, next) => {
+  req.db = pool;
+  next();
+});
+
+// Simple locals
+app.use((req, res, next) => {
+  res.locals.basePath = BASE_PATH;
+  res.locals.user = req.session.user || null;
+  next();
+});
+
+// Routes (to be implemented in waves)
+app.get('/', (req, res) => {
+  res.render('index', { title: 'Health Fitness Tracker' });
+});
+
+app.get('/about', (req, res) => {
+  res.render('about', { title: 'About' });
+});
+
+// Placeholder search page
+app.get('/search', (req, res) => {
+  res.render('search', { title: 'Search Workouts' });
+});
+
+// Health check
+app.get('/healthz', async (req, res) => {
+  try {
+    const [rows] = await req.db.query('SELECT 1 AS ok');
+    res.json({ ok: rows[0].ok === 1 });
+  } catch (err) {
+    res.status(500).json({ ok: false, error: 'DB unavailable' });
+  }
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).render('error', { title: 'Error', message: 'Something went wrong.' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Health Fitness Tracker running on http://localhost:${PORT}`);
+});

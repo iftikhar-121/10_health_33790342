@@ -1,0 +1,4 @@
+body { font-family: system-ui, -apple-system, sans-serif; margin: 2rem; }
+nav a { margin-right: 0.5rem; }
+label { display: block; margin-top: 0.5rem; }
+input, select, button { margin-top: 0.25rem; padding: 0.5rem; }
