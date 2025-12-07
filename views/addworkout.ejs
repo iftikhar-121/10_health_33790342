@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a> |
+    <a href="/about">About</a> |
+    <a href="/workouts/list">List</a>
+  </nav>
+  <h1>Add Workout</h1>
+  <form method="POST" action="/workouts/workout-added">
+    <label>User ID</label>
+    <input type="number" name="user_id" min="1" required>
+
+    <label>Date</label>
+    <input type="date" name="date" required>
+
+    <label>Type</label>
+    <select name="type" required>
+      <option value="cardio">Cardio</option>
+      <option value="strength">Strength</option>
+      <option value="flexibility">Flexibility</option>
+      <option value="balance">Balance</option>
+      <option value="sport">Sport</option>
+      <option value="other">Other</option>
+    </select>
+
+    <label>Duration (minutes)</label>
+    <input type="number" name="duration_minutes" min="0" required>
+
+    <label>Intensity</label>
+    <select name="intensity" required>
+      <option value="low">Low</option>
+      <option value="medium">Medium</option>
+      <option value="high">High</option>
+    </select>
+
+    <label>Notes (optional)</label>
+    <textarea name="notes" rows="3"></textarea>
+
+    <button type="submit">Save Workout</button>
+  </form>
+</body>
+</html>

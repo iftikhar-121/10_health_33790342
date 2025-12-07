@@ -56,19 +56,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Routes (to be implemented in waves)
-app.get('/', (req, res) => {
-  res.render('index', { title: 'Health Fitness Tracker' });
-});
+// Routes
+const mainRoutes = require('./routes/main');
+const userRoutes = require('./routes/users');
+const workoutRoutes = require('./routes/workouts');
+const apiRoutes = require('./routes/api');
 
-app.get('/about', (req, res) => {
-  res.render('about', { title: 'About' });
-});
-
-// Placeholder search page
-app.get('/search', (req, res) => {
-  res.render('search', { title: 'Search Workouts' });
-});
+app.use('/', mainRoutes);
+app.use('/', userRoutes); // /register, /login, etc.
+app.use('/workouts', workoutRoutes); // /workouts/search, /workouts/list
+app.use('/api', apiRoutes); // /api/items
 
 // Health check
 app.get('/healthz', async (req, res) => {

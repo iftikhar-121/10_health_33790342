@@ -1,11 +1,13 @@
--- Fitness Tracker schema
--- Do NOT create DB users here; markers will provision the DB user.
+-- 1. Create and Select the Database FIRST 
+CREATE DATABASE IF NOT EXISTS health;
+USE health;
 
+-- 2. Drop existing tables if they exist
 DROP TABLE IF EXISTS audit_log;
 DROP TABLE IF EXISTS workouts;
 DROP TABLE IF EXISTS users;
 
--- Users table
+-- 3. Fitness Tracker Schema (from your version) 
 CREATE TABLE users (
   user_id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL UNIQUE,
@@ -16,7 +18,6 @@ CREATE TABLE users (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Workouts table
 CREATE TABLE workouts (
   id INT AUTO_INCREMENT PRIMARY KEY,
   user_id INT NOT NULL,
@@ -30,14 +31,11 @@ CREATE TABLE workouts (
   CONSTRAINT fk_workouts_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Audit log for security/observability
 CREATE TABLE audit_log (
   log_id INT AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(50) NOT NULL,
   action VARCHAR(50) NOT NULL,
   status VARCHAR(20) NOT NULL,
-  ip VARCHAR(45),
-  user_agent VARCHAR(255),
   details TEXT,
   attempt_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   INDEX idx_username_time (username, attempt_at)

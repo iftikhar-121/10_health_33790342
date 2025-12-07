@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title><%= title %></title>
+  <link rel="stylesheet" href="/main.css">
+</head>
+<body>
+  <nav>
+    <a href="/">Home</a> |
+    <a href="/about">About</a>
+  </nav>
+  <h1>Login</h1>
+  <% if (message) { %><p><%= message %></p><% } %>
+  <form method="POST" action="/loggedin">
+    <label>Username</label>
+    <input type="text" name="username" required>
+    <label>Password</label>
+    <input type="password" name="password" required>
+    <button type="submit">Login</button>
+  </form>
+</body>
+</html>
