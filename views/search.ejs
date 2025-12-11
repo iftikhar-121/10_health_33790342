@@ -7,13 +7,15 @@
 </head>
 <body>
   <%- include('partials/nav') %>
-  <h1>Search Workouts</h1>
+  <h1>🔍 Search Workouts</h1>
+  <p style="color: #7f8c8d; margin-bottom: 1.5rem;">Search across all workouts in the database with filters and sorting.</p>
   <form method="GET" action="/workouts/search-result">
-    <label>Search term</label>
-    <input type="text" name="q" placeholder="type or notes">
-    <label>Type</label>
+    <label>Search Term</label>
+    <input type="text" name="q" placeholder="Search in type or notes...">
+    
+    <label>Workout Type</label>
     <select name="type">
-      <option value="">Any</option>
+      <option value="">All Types</option>
       <option value="cardio">Cardio</option>
       <option value="strength">Strength</option>
       <option value="flexibility">Flexibility</option>
@@ -21,25 +23,29 @@
       <option value="sport">Sport</option>
       <option value="other">Other</option>
     </select>
-    <label>Intensity</label>
+    
+    <label>Intensity Level</label>
     <select name="intensity">
-      <option value="">Any</option>
+      <option value="">All Intensities</option>
       <option value="low">Low</option>
       <option value="medium">Medium</option>
       <option value="high">High</option>
     </select>
-    <label>Match mode</label>
+    
+    <label>Match Mode</label>
     <select name="mode">
-      <option value="partial">Partial</option>
-      <option value="exact">Exact</option>
+      <option value="partial">Partial Match (Recommended)</option>
+      <option value="exact">Exact Match</option>
     </select>
-    <label>Sort by</label>
+    
+    <label>Sort Results By</label>
     <select name="sort">
-      <option value="date">Date</option>
-      <option value="duration">Duration</option>
-      <option value="intensity">Intensity</option>
+      <option value="date">Date (Newest First)</option>
+      <option value="duration">Duration (Longest First)</option>
+      <option value="intensity">Intensity (High to Low)</option>
     </select>
-    <button type="submit">Search</button>
+    
+    <button type="submit">🔍 Search Workouts</button>
   </form>
 </body>
 </html>

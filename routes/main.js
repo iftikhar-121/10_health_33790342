@@ -1,3 +1,4 @@
+// Main Routes - Home, about, logout, and legacy redirects
 const express = require('express');
 const router = express.Router();
 

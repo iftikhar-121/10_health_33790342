@@ -2,9 +2,10 @@
 USE health;
 
 -- Password for 'gold' is 'smiths'. Hash verified for bcrypt.
+-- Password for 'alice' is 'password123'
 INSERT INTO users (username, email, hashed_password, first_name, last_name)
 VALUES
-('gold', 'gold@smiths.ac.uk', '$2b$10$hyGHk7VnXCWhz.OPmcZQuOtvSraRijU5tr9VLiS0yOptJjPcq6Y0y', 'Gold', 'User'),
+('gold', 'gold@smiths.ac.uk', '$2b$10$ML1txQzTHdXqnRt01Xdue.OhgN0T7dkPaPjassJHmfyPu736G1LQi', 'Gold', 'User'),
 ('alice', 'alice@example.com', '$2b$10$examplehashedpasswordstring', 'Alice', 'Runner');
 
 -- Seed sample workouts 

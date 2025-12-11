@@ -9,40 +9,46 @@
   <%- include('partials/nav') %>
   <h1><%= title %></h1>
   <% if (!items || items.length === 0) { %>
-    <p>No workouts found.</p>
+    <div class="empty-state">
+      <p>No workouts yet. Start tracking your fitness journey!</p>
+      <% if (typeof page !== 'undefined') { %>
+        <a href="/workouts/add-workout" class="btn">Add Your First Workout</a>
+      <% } %>
+    </div>
   <% } else { %>
     <table>
       <thead>
         <tr>
-          <th>Date</th><th>User</th><th>Type</th><th>Duration</th><th>Intensity</th><th>Notes</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Duration</th>
+          <th>Intensity</th>
+          <th>Notes</th>
         </tr>
       </thead>
       <tbody>
         <% items.forEach(i => { %>
           <tr>
             <td><%= i.date.toISOString ? i.date.toISOString().slice(0,10) : i.date %></td>
-            <td><%= i.username || i.user_id %></td>
-            <td><%= i.type %></td>
+            <td style="text-transform: capitalize;"><%= i.type %></td>
             <td><%= i.duration_minutes %> min</td>
-            <td><%= i.intensity %></td>
-            <td><%= i.notes %></td>
+            <td style="text-transform: capitalize;"><%= i.intensity %></td>
+            <td><%= i.notes || '-' %></td>
           </tr>
         <% }) %>
       </tbody>
     </table>
-    <div>
-      <% if (typeof page !== 'undefined') { %>
-        <p>Page <%= page %> of <%= totalPages %></p>
-        <div>
-          <% if (page > 1) { %>
-            <a href="/workouts/list?page=<%= page - 1 %>">Prev</a>
-          <% } %>
-          <% if (page < totalPages) { %>
-            <a href="/workouts/list?page=<%= page + 1 %>">Next</a>
-          <% } %>
-        </div>
-      <% } %>
-    </div>
+    <% if (typeof page !== 'undefined') { %>
+      <div class="pagination">
+        <% if (page > 1) { %>
+          <a href="/workouts/list?page=<%= page - 1 %>">← Previous</a>
+        <% } %>
+        <span class="current">Page <%= page %> of <%= totalPages %></span>
+        <% if (page < totalPages) { %>
+          <a href="/workouts/list?page=<%= page + 1 %>">Next →</a>
+        <% } %>
+      </div>
+    <% } %>
   <% } %>
   
 </body>

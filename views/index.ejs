@@ -7,7 +7,30 @@
 </head>
 <body>
   <%- include('partials/nav') %>
-  <h1>Health Fitness Tracker</h1>
-  <p>Track workouts, search history, and more.</p>
+  <div class="hero">
+    <h1>💪 Health Fitness Tracker</h1>
+    <p>Track your workouts, monitor your progress, and achieve your fitness goals.</p>
+    <% if (!user) { %>
+      <div class="cta-buttons">
+        <a href="/register" class="btn">Get Started</a>
+        <a href="/login" class="btn secondary">Login</a>
+      </div>
+    <% } else { %>
+      <div class="cta-buttons">
+        <a href="/workouts/add-workout" class="btn">Add Workout</a>
+        <a href="/workouts/list" class="btn secondary">View My Workouts</a>
+      </div>
+    <% } %>
+  </div>
+  
+  <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+    <h2>Features</h2>
+    <ul style="list-style: none; padding: 0;">
+      <li style="margin: 1rem 0;">🔍 <strong>Search Workouts</strong> - Find workouts by type, intensity, and more</li>
+      <li style="margin: 1rem 0;">📊 <strong>Track Progress</strong> - Log and review all your workout sessions</li>
+      <li style="margin: 1rem 0;">🔒 <strong>Secure & Private</strong> - Your data is protected with authentication</li>
+      <li style="margin: 1rem 0;">📱 <strong>Easy to Use</strong> - Simple, intuitive interface</li>
+    </ul>
+  </div>
 </body>
 </html>

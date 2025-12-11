@@ -7,29 +7,46 @@
 </head>
 <body>
   <%- include('partials/nav') %>
-  <h1>Add Workout</h1>
-  <% if (loadError) { %>
-    <p><%= loadError %></p>
-  <% } %>
+  <h1>📝 Add Workout</h1>
   <% if (errors && errors.length) { %>
-    <ul>
-      <% errors.forEach(e => { %><li><%= e %></li><% }) %>
-    </ul>
+    <div class="error">
+      <strong>Please fix the following errors:</strong>
+      <ul style="margin: 0.5rem 0 0 1.5rem;">
+        <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+      </ul>
+    </div>
   <% } %>
+  
+  <% if (suggestions && suggestions.length > 0) { %>
+    <div class="info" style="background: #e3f2fd; border-left: 4px solid #2196f3; padding: 1rem; margin: 1rem 0; border-radius: 4px;">
+      <strong>💡 Suggested Exercises:</strong>
+      <ul style="margin: 0.5rem 0 0 1.5rem; list-style: none; padding: 0;">
+        <% suggestions.slice(0, 3).forEach(ex => { %>
+          <li style="margin: 0.5rem 0; border-bottom: 1px solid #ddd; padding-bottom: 0.5rem;">
+            <strong style="color: #1976d2;"><%= ex.name %></strong>
+            <% if (ex.difficulty) { %>
+              <span style="background: #ff9800; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; margin-left: 0.5rem;"><%= ex.difficulty %></span>
+            <% } %>
+            <% if (ex.muscle) { %>
+              <span style="background: #4caf50; color: white; padding: 2px 6px; border-radius: 3px; font-size: 0.75rem; margin-left: 0.25rem;">💪 <%= ex.muscle %></span>
+            <% } %>
+            <br>
+            <small style="color: #555;"><%= ex.description %></small><br>
+            <small style="color: #777;">🏋️ Equipment: <%= ex.equipment %></small>
+          </li>
+        <% }) %>
+      </ul>
+      <small style="color: #666;">⚡ Suggestions powered by API-Ninjas Exercise Database</small>
+    </div>
+  <% } %>
+  
   <form method="POST" action="/workouts/workout-added">
-    <label>User</label>
-    <select name="user_id" required>
-      <% (users || []).forEach(u => { %>
-        <option value="<%= u.user_id %>" <%= (values.user_id == u.user_id) ? 'selected' : '' %>><%= u.username %></option>
-      <% }) %>
-    </select>
+    <label>Date *</label>
+    <input type="date" name="date" required value="<%= values.date || new Date().toISOString().slice(0,10) %>">
 
-    <label>Date</label>
-  <input type="date" name="date" required value="<%= values.date || '' %>">
-
-    <label>Type</label>
-    <select name="type" required>
-      <option value="cardio" <%= (values.type==='cardio')?'selected':'' %>>Cardio</option>
+    <label>Workout Type * <small style="color: #666;">(Change to see different exercise suggestions)</small></label>
+    <select name="type" required id="workoutType">
+      <option value="cardio" <%= (values.type==='cardio' || !values.type)?'selected':'' %>>Cardio</option>
       <option value="strength" <%= (values.type==='strength')?'selected':'' %>>Strength</option>
       <option value="flexibility" <%= (values.type==='flexibility')?'selected':'' %>>Flexibility</option>
       <option value="balance" <%= (values.type==='balance')?'selected':'' %>>Balance</option>
@@ -37,20 +54,23 @@
       <option value="other" <%= (values.type==='other')?'selected':'' %>>Other</option>
     </select>
 
-    <label>Duration (minutes)</label>
-  <input type="number" name="duration_minutes" min="0" required value="<%= values.duration_minutes || '' %>">
+    <label>Duration (minutes) *</label>
+    <input type="number" name="duration_minutes" min="0" required value="<%= values.duration_minutes || '' %>" placeholder="e.g., 30">
 
-    <label>Intensity</label>
+    <label>Intensity Level *</label>
     <select name="intensity" required>
       <option value="low" <%= (values.intensity==='low')?'selected':'' %>>Low</option>
       <option value="medium" <%= (values.intensity==='medium')?'selected':'' %>>Medium</option>
       <option value="high" <%= (values.intensity==='high')?'selected':'' %>>High</option>
     </select>
 
-    <label>Notes (optional)</label>
-  <textarea name="notes" rows="3"><%= values.notes || '' %></textarea>
+    <label>Notes (Optional)</label>
+    <textarea name="notes" rows="4" placeholder="Add any additional notes about this workout..."><%= values.notes || '' %></textarea>
 
-    <button type="submit">Save Workout</button>
+    <button type="submit">💪 Save Workout</button>
+    <a href="/workouts/list" class="btn secondary">Cancel</a>
   </form>
+
+  <script src="/addworkout.js"></script>
 </body>
 </html>

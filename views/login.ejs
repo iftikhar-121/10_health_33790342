@@ -8,14 +8,23 @@
 <body>
   <%- include('partials/nav') %>
   <h1>Login</h1>
-  <p>Don’t have an account? <a href="/register">Register</a>.</p>
-  <% if (message) { %><p><%= message %></p><% } %>
+  <% if (message) { %>
+    <div class="<%= message.includes('success') ? 'success' : (message.includes('Invalid') ? 'error' : 'info') %>">
+      <%= message %>
+    </div>
+  <% } %>
   <form method="POST" action="/loggedin">
     <label>Username</label>
-    <input type="text" name="username" required>
+    <input type="text" name="username" required placeholder="Enter your username" autofocus>
+    
     <label>Password</label>
-    <input type="password" name="password" required>
+    <input type="password" name="password" required placeholder="Enter your password">
+    
     <button type="submit">Login</button>
   </form>
+  
+  <p style="text-align: center; margin-top: 1rem;">
+    Don't have an account? <a href="/register" style="color: #3498db;">Create one here</a>
+  </p>
 </body>
 </html>

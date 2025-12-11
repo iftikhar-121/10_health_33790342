@@ -1,3 +1,6 @@
+// Health Fitness Tracker - Main Application Entry Point
+// Lab 10 - Node.js + Express + EJS + MySQL
+
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -10,7 +13,7 @@ const mysql = require('mysql2/promise');
 const PORT = process.env.PORT || 8000;
 const BASE_PATH = process.env.HEALTH_BASE_PATH || `http://localhost:${PORT}`;
 
-// MySQL pool
+// MySQL connection pool for efficient database access
 const pool = mysql.createPool({
   host: process.env.HEALTH_HOST,
   user: process.env.HEALTH_USER,
@@ -23,16 +26,16 @@ const pool = mysql.createPool({
 
 const app = express();
 
-// View engine
+// Configure EJS templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Middleware
-app.use(helmet());
-app.use(morgan('dev'));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(sanitizer());
+// Security and parsing middleware
+app.use(helmet()); // Security headers
+app.use(express.urlencoded({ extended: true })); // Parse form data
+app.use(express.json()); // Parse JSON bodies
+app.use(sanitizer()); // XSS prevention
+// Session management for authentication
 app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
   resave: false,
@@ -40,23 +43,23 @@ app.use(session({
   cookie: { httpOnly: true }
 }));
 
-// Static
+// Serve static files (CSS, JS, images)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Attach pool to request
+// Make database connection available to all routes
 app.use((req, res, next) => {
   req.db = pool;
   next();
 });
 
-// Simple locals
+// Make user session available to all templates
 app.use((req, res, next) => {
   res.locals.basePath = BASE_PATH;
   res.locals.user = req.session.user || null;
   next();
 });
 
-// Routes
+// Route handlers
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/users');
 const workoutRoutes = require('./routes/workouts');

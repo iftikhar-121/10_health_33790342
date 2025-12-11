@@ -1,13 +1,16 @@
+// User Routes - Registration, login, and authentication
 const express = require('express');
-const { body } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
+// Middleware to protect routes - redirects to login if not authenticated
 function redirectLogin(req, res, next) {
   if (!req.session.user) return res.redirect('/login');
   next();
 }
 
+// Audit logging function for tracking user actions and security events
 async function logAudit(req, { username, action, status, details }) {
   try {
     await req.db.execute(
@@ -23,6 +26,7 @@ router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', errors: [], values: {} });
 });
 
+// Handle user registration with validation and password hashing
 router.post('/registered',
   body('username').trim().isLength({ min: 3 }).escape(),
   body('email').isEmail().normalizeEmail(),
@@ -33,10 +37,11 @@ router.post('/registered',
     const { username, email, first_name, last_name, password } = req.body;
     const values = { username, email, first_name, last_name };
     try {
+  const result = validationResult(req);
+  const errors = result.isEmpty() ? [] : result.array().map(e => e.msg);
       // Duplicate checks
       const [u] = await req.db.execute('SELECT user_id FROM users WHERE username = ?', [username]);
       const [e] = await req.db.execute('SELECT user_id FROM users WHERE email = ?', [email]);
-      const errors = [];
       if (u.length) errors.push('Username already taken');
       if (e.length) errors.push('Email already registered');
       // Basic validator outcome (we could use validationResult, but keeping minimal)
@@ -57,6 +62,7 @@ router.get('/login', (req, res) => {
   res.render('login', { title: 'Login', message: null });
 });
 
+// Handle login with bcrypt password verification and session creation
 router.post('/loggedin', async (req, res, next) => {
   const { username, password } = req.body;
   try {

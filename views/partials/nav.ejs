@@ -1,11 +1,11 @@
 <nav>
   <a href="/">Home</a> |
   <a href="/about">About</a> |
-  <a href="/workouts/search">Search</a> |
-  <a href="/workouts/add-workout">Add Workout</a> |
-  <a href="/workouts/list">List</a>
+  <a href="/workouts/search">Search</a>
   <% if (user) { %>
-    | <span>Hi, <%= user.username %></span> |
+    | <a href="/workouts/add-workout">Add Workout</a> |
+    <a href="/workouts/list">My Workouts</a> |
+    <span>Hi, <%= user.username %></span> |
     <a href="/logout">Logout</a>
   <% } else { %>
     | <a href="/login">Login</a> |

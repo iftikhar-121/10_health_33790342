@@ -1,7 +1,9 @@
+// API Routes - JSON endpoints with rate limiting
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 
+// Rate limiter: 60 requests per minute per IP
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 60,
@@ -9,6 +11,7 @@ const apiLimiter = rateLimit({
 
 router.use(apiLimiter);
 
+// JSON API endpoint with flexible filtering and sorting
 router.get('/items', async (req, res, next) => {
   try {
     const { search = '', type = '', intensity = '', minDuration = '', maxDuration = '', sort = 'date' } = req.query;

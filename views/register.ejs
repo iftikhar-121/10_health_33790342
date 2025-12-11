@@ -7,25 +7,39 @@
 </head>
 <body>
   <%- include('partials/nav') %>
-  <h1>Register</h1>
-  <p>Password policy: at least 8 characters, one lower, one upper, one digit, one special.</p>
+  <h1>Create Account</h1>
   <% if (errors && errors.length) { %>
-    <ul>
-      <% errors.forEach(e => { %><li><%= e %></li><% }) %>
-    </ul>
+    <div class="error">
+      <strong>Please fix the following errors:</strong>
+      <ul style="margin: 0.5rem 0 0 1.5rem;">
+        <% errors.forEach(e => { %><li><%= e %></li><% }) %>
+      </ul>
+    </div>
   <% } %>
   <form method="POST" action="/registered">
-    <label>Username</label>
-    <input type="text" name="username" required value="<%= (values && values.username) || '' %>">
-    <label>Email</label>
-    <input type="email" name="email" required value="<%= (values && values.email) || '' %>">
-    <label>First name</label>
-    <input type="text" name="first_name" required value="<%= (values && values.first_name) || '' %>">
-    <label>Last name</label>
-    <input type="text" name="last_name" required value="<%= (values && values.last_name) || '' %>">
-    <label>Password</label>
-    <input type="password" name="password" required>
+    <label>Username *</label>
+    <input type="text" name="username" required value="<%= (values && values.username) || '' %>" placeholder="Choose a username">
+    
+    <label>Email *</label>
+    <input type="email" name="email" required value="<%= (values && values.email) || '' %>" placeholder="your@email.com">
+    
+    <label>First Name *</label>
+    <input type="text" name="first_name" required value="<%= (values && values.first_name) || '' %>" placeholder="John">
+    
+    <label>Last Name *</label>
+    <input type="text" name="last_name" required value="<%= (values && values.last_name) || '' %>" placeholder="Doe">
+    
+    <label>Password *</label>
+    <input type="password" name="password" required placeholder="At least 8 characters">
+    <small style="display: block; margin-top: 0.25rem; color: #7f8c8d;">
+      Must include: 1 uppercase, 1 lowercase, 1 number, 1 special character
+    </small>
+    
     <button type="submit">Create Account</button>
   </form>
+  
+  <p style="text-align: center; margin-top: 1rem;">
+    Already have an account? <a href="/login" style="color: #3498db;">Login here</a>
+  </p>
 </body>
 </html>
