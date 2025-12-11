@@ -148,19 +148,6 @@ A comprehensive health and fitness tracking web application built with Node.js, 
 
 ---
 
-## 📝 Notes for Markers
-
-1. **Database credentials are included in this README for marking convenience only.** This violates normal security practices but is requested for easier setup.
-
-2. **API Key is provided** - The API-Ninjas key in the `.env` example is a working key for marking purposes.
-
-3. **Test user credentials** are pre-configured for immediate testing (gold/smiths).
-
-4. **External API fallback** - If the API-Ninjas service is unavailable, the app falls back to hardcoded exercise suggestions.
-
-5. **File structure is intentionally minimal** - only necessary files included for submission (no debug scripts, backup files, or unnecessary configs).
-
-**Note:** The app works without the API key (uses fallback exercises), but real API data demonstrates advanced integration skills.
 
 ## Deployment (VM)
 1. Ensure `.env` matches:
