@@ -1,4 +1,3 @@
-// Exercise Service - Native HTTPS version (No node-fetch required)
 const https = require('https');
 
 // Fetch exercise suggestions from API-Ninjas
@@ -6,6 +5,7 @@ function fetchExerciseSuggestions(workoutType) {
   return new Promise((resolve) => {
     const apiKey = process.env.API_NINJAS_KEY;
     
+    // If no key, return fallbacks immediately
     if (!apiKey) {
       return resolve(getFallbackExercises(workoutType));
     }
@@ -20,6 +20,7 @@ function fetchExerciseSuggestions(workoutType) {
     };
 
     const searchType = typeMapping[workoutType] || 'cardio';
+    // API-Ninjas URL
     const url = `https://api.api-ninjas.com/v1/exercises?type=${searchType}&offset=0`;
 
     const options = {
@@ -27,12 +28,12 @@ function fetchExerciseSuggestions(workoutType) {
         'X-Api-Key': apiKey,
         'Accept': 'application/json'
       },
-      timeout: 5000
+      timeout: 5000 // 5 second timeout
     };
 
     const req = https.get(url, options, (res) => {
       if (res.statusCode !== 200) {
-        console.error(`API Status: ${res.statusCode}`);
+        // If API fails, just resolve with fallback data (don't crash!)
         return resolve(getFallbackExercises(workoutType));
       }
 

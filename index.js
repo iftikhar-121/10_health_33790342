@@ -1,6 +1,4 @@
 // Health Fitness Tracker - Main Application Entry Point
-// Lab 10 - Node.js + Express + EJS + MySQL
-
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -12,7 +10,6 @@ const mysql = require('mysql2/promise');
 
 const PORT = process.env.PORT || 8000;
 
-// MySQL connection pool for efficient database access
 const pool = mysql.createPool({
   host: process.env.HEALTH_HOST,
   user: process.env.HEALTH_USER,
@@ -25,39 +22,36 @@ const pool = mysql.createPool({
 
 const app = express();
 
-// Trust the proxy so cookies work !!!
-app.set('trust proxy', 1);
-
-// Configure EJS templating engine
-app.set('view engine', 'ejs');
+// !!! CRITICAL FIX: Trust the VM proxy so cookies work !!!
+app.set('trust proxy', 1); 
 
 // Configure EJS templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Security and parsing middleware
-app.use(helmet()); // Security headers
-app.use(express.urlencoded({ extended: true })); // Parse form data
-app.use(express.json()); // Parse JSON bodies
-app.use(sanitizer()); // XSS prevention
-// Session management for authentication
+app.use(helmet());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(sanitizer());
+
+// Session management
 app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
   resave: false,
   saveUninitialized: false,
-  // Add 'sameSite: lax' to help with browser redirect behavior
   cookie: { 
     httpOnly: true,
-    sameSite: 'lax'
+    // 'lax' helps ensure the cookie is sent during redirects
+    sameSite: 'lax' 
   }
 }));
 
-// Serve static files (CSS, JS, images)
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-// Also serve static files under the VM subpath if needed
 app.use('/usr', express.static(path.join(__dirname, 'public')));
 
-// Make database connection available to all routes
+// Make database connection available
 app.use((req, res, next) => {
   req.db = pool;
   next();
@@ -65,14 +59,10 @@ app.use((req, res, next) => {
 
 // Middleware to detect Base Path and User Session
 app.use((req, res, next) => {
-  // 1. Auto-detect base path (e.g., /usr/142) from the URL
   const match = req.originalUrl.match(/^\/usr\/\d+/);
   const basePath = match ? match[0] : '';
-  
-  // 2. Make variables available to all templates and routes
   res.locals.basePath = basePath;
   res.locals.user = req.session.user || null;
-  
   next();
 });
 
@@ -83,11 +73,10 @@ const workoutRoutes = require('./routes/workouts');
 const apiRoutes = require('./routes/api');
 
 app.use('/', mainRoutes);
-app.use('/', userRoutes); // /register, /login, etc.
-app.use('/workouts', workoutRoutes); // /workouts/search, /workouts/list
-app.use('/api', apiRoutes); // /api/items
+app.use('/', userRoutes);
+app.use('/workouts', workoutRoutes);
+app.use('/api', apiRoutes);
 
-// Health check
 app.get('/healthz', async (req, res) => {
   try {
     const [rows] = await req.db.query('SELECT 1 AS ok');
@@ -97,7 +86,6 @@ app.get('/healthz', async (req, res) => {
   }
 });
 
-// Error handler
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).render('error', { title: 'Error', message: 'Something went wrong.' });
