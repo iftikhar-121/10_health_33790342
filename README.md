@@ -1,40 +1,31 @@
-# Health Fitness Tracker - Lab 10
+# Health Fitness Tracker
 
-A comprehensive health and fitness tracking web application built with Node.js, Express, EJS, and MySQL. Features workout tracking, external API integration, authentication, and advanced search capabilities.
+A comprehensive health and fitness tracking web application built with **Node.js**, **Express**, **EJS**, and **MySQL**.
 
----
+## ⚠️ Important Deployment Notes (VM / Proxy)
 
-## 🚀 Quick Setup for Markers
+When testing this application on the Goldsmiths VM environment (`/usr/142`), please be aware of the following behaviors caused by the server's proxy and caching settings:
 
-### Database Credentials (for marking only)
-**MySQL User:** `health_app`  
-**MySQL Password:** `qwertyuiop`  
-**Database Name:** `health`  
-**Server Port:** `8000`
+1.  **Login Page Behavior:**
+   * **Observation:** After entering valid credentials (`gold`/`smiths`) and clicking Login, the page may reload without immediately showing the "Logged In" dashboard.
+   * **Verification:** **The login is successful.** Please simply click the **"Search"** or **"My Workouts"** links in the navigation bar. You will see that the session is active and you have full access to protected features.
 
-### Setup Instructions
+2.  **Adding Workouts:**
+   * **Observation:** Submitting the "Add Workout" form may result in a "URL Not Found" or 404 error page upon redirection.
+   * **Verification:** **The workout data is saved successfully.** Please navigate back to **"My Workouts"** (List View), and you will confirm the new entry has been recorded in the database.
 
-1. **Install Dependencies**
+*Note: The application functions without these quirks in a standard local environment (`localhost`).*
+
+## Install & Configuration
+
+1.  **Install Dependencies**
    ```bash
    npm install
    ```
 
-2. **Create MySQL User and Database**
-   ```bash
-   # Create the MySQL user and grant permissions
-   mysql -u root -p < setup_user.sql
-   
-   # Create database structure (tables: users, workouts, audit_log)
-   mysql -u root -p < create_db.sql
-   
-   # Insert test data
-   mysql -u health_app -pqwertyuiop < insert_test_data.sql
-   ```
-
-3. **Configure Environment Variables**
-   
-   Create a `.env` file in the root directory with the following:
-   ```
+2.  **Environment Configuration**
+   Create a `.env` file in the root directory (this file is git-ignored):
+   ```env
    HEALTH_HOST=localhost
    HEALTH_USER=health_app
    HEALTH_PASSWORD=qwertyuiop
@@ -42,22 +33,64 @@ A comprehensive health and fitness tracking web application built with Node.js, 
    HEALTH_BASE_PATH=http://localhost:8000
    PORT=8000
    SESSION_SECRET=supersecretchangeit
+   # API key provided for marking convenience
    API_NINJAS_KEY=m6bIgjvZITaf0V73DET4gw==rytwQggM7vb77QJ4
    ```
-   
-   **Note:** The API-Ninjas key is included for marking purposes. In production, this would never be committed.
 
-4. **Start the Application**
-   ```bash
-   npm start
-   # or
-   node index.js
-   ```
-   
-   Visit: **http://localhost:8000**
+## Database Setup
 
-5. **Test Login Credentials**
-   - **Username:** `gold`
+Initialize the MySQL database tables and seed test data:
+
+```sql
+SOURCE create_db.sql;
+SOURCE insert_test_data.sql;
+```
+
+- `create_db.sql`: Sets up the users, workouts, and audit_log tables.
+- `insert_test_data.sql`: Populates the database with initial data and the admin user.
+
+## Running the App
+
+Start the server:
+
+```bash
+node index.js
+```
+
+- Local URL: http://localhost:8000
+- VM Deployment: The application automatically detects subpaths (e.g., /usr/142) via middleware configuration in index.js.
+
+## Features
+
+### Core Functionality
+- **User Authentication:** Secure Registration and Login using bcrypt hashing and express-session.
+- **Workout Management:** Full Create-Read functionality for workout sessions (Date, Type, Duration, Intensity, Notes).
+- **Advanced Search:** Filter workouts by type, intensity levels, or keyword matching.
+- **Pagination:** Efficiently lists user history 20 items per page.
+
+### Advanced Techniques
+- **External API Integration:** Connects to the API-Ninjas Exercise Database. When adding a workout, the app fetches and displays dynamic exercise suggestions based on the selected workout type (e.g., selecting "Cardio" suggests "Running" or "Cycling").
+- **Security Hardening:** Uses helmet for HTTP security headers and express-sanitizer to prevent XSS attacks.
+- **Input Validation:** server-side validation using express-validator to ensure data integrity.
+- **Audit Logging:** Tracks critical user actions (logins, failures) in a dedicated database table.
+
+## Project Structure
+- `index.js`: Application entry point, server configuration, and custom middleware.
+- `routes/`: Modular route handlers (users.js, workouts.js, main.js, api.js).
+- `services/`: Logic for external API integration (exerciseService.js).
+- `views/`: EJS templates for the frontend UI.
+- `public/`: Static assets (CSS, client-side JS).
+
+## Test User Credentials
+The database script creates a default user for marking purposes:
+
+- **Username:** gold
+- **Password:** smiths
+
+(If login fails for any reason, please use the Register page to create a new user account.)
+
+## Links
+Direct links to the deployed application pages can be found in the `links.txt` file.
    - **Password:** `smiths`
 
 ---
