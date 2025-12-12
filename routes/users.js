@@ -1,4 +1,4 @@
-// ... existing imports
+// User Routes - Registration, login, and authentication
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
@@ -6,6 +6,7 @@ const router = express.Router();
 
 function redirectLogin(req, res, next) {
   if (!req.session.user) {
+    // FIX 1: Use basePath
     return res.redirect((res.locals.basePath || '') + '/login');
   }
   next();
@@ -71,17 +72,11 @@ router.post('/loggedin', async (req, res, next) => {
       return res.render('login', { title: 'Login', message: 'Invalid credentials.' });
     }
     
-    // Set user session
     req.session.user = { user_id: user.user_id, username: user.username };
     await logAudit(req, { username, action: 'login', status: 'success' });
     
-    // FORCE SESSION SAVE before redirecting to ensure login persists
-    req.session.save((err) => {
-      if (err) console.error('Session save error:', err);
-      // Redirect to home with basePath
-      res.redirect((res.locals.basePath || '') + '/');
-    });
-    
+    // FIX 2: Use basePath for home redirect
+    res.redirect((res.locals.basePath || '') + '/');
   } catch (err) { next(err); }
 });
 

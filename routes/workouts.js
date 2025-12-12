@@ -6,6 +6,7 @@ const router = express.Router();
 // Middleware to protect routes - redirects to login if not authenticated
 function redirectLogin(req, res, next) {
   if (!req.session.user) {
+    // FIX 1: Use basePath for login redirect
     return res.redirect((res.locals.basePath || '') + '/login');
   }
   next();
@@ -47,7 +48,6 @@ router.get('/search-result',
   }
 );
 
-// Display logged-in user's workout history with pagination
 router.get('/list', redirectLogin, async (req, res, next) => {
   try {
     const page = Math.max(parseInt(req.query.page || '1', 10), 1);
@@ -65,8 +65,8 @@ router.get('/list', redirectLogin, async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// Show add workout form with exercise suggestions from external API
 router.get('/add-workout', redirectLogin, async (req, res, next) => {
+  // We use the HTTPS version now (friend's fix) or the local service
   const { fetchExerciseSuggestions } = require('../services/exerciseService');
   try {
     const workoutType = req.query.type || 'cardio';
@@ -87,7 +87,6 @@ router.get('/add-workout', redirectLogin, async (req, res, next) => {
   }
 });
 
-// Process workout submission with validation
 router.post('/workout-added', redirectLogin,
   body('date').isISO8601(),
   body('type').isIn(['cardio','strength','flexibility','balance','sport','other']),
@@ -109,7 +108,7 @@ router.post('/workout-added', redirectLogin,
         'INSERT INTO workouts (user_id, date, type, duration_minutes, intensity, notes) VALUES (?,?,?,?,?,?)',
         [user_id, date, type, duration_minutes, intensity, notes || null]
       );
-      // Redirect with basePath
+      // FIX 2: Use basePath for the success redirect
       res.redirect((res.locals.basePath || '') + '/workouts/list');
     } catch (err) {
       res.status(400).render('addworkout', { title: 'Add Workout', errors: ['Unable to save workout'], values: req.body });
