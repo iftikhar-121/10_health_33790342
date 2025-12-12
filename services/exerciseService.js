@@ -1,5 +1,5 @@
 // Exercise Service - API-Ninjas integration for workout suggestions
-const fetch = require('node-fetch'); // <--- ADD THIS LINE AT THE TOP
+const fetch = require('node-fetch'); 
 const API_NINJAS_BASE = 'https://api.api-ninjas.com/v1';
 
 // Fetch exercise suggestions from API-Ninjas based on workout type
