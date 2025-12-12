@@ -12,19 +12,22 @@ router.get('/about', (req, res) => {
 
 router.get('/logout', (req, res) => {
   req.session.destroy(() => {
-    res.redirect('/');
+    // Redirect with basePath
+    res.redirect((res.locals.basePath || '') + '/');
   });
 });
 
 // Legacy aliases so /search still works
 router.get('/search', (req, res) => {
-  res.redirect('/workouts/search');
+  // Redirect with basePath
+  res.redirect((res.locals.basePath || '') + '/workouts/search');
 });
 
 router.get('/search-result', (req, res) => {
   const qsIndex = req.url.indexOf('?');
   const qs = qsIndex !== -1 ? req.url.substring(qsIndex) : '';
-  res.redirect(`/workouts/search-result${qs}`);
+  // Redirect with basePath
+  res.redirect(`${res.locals.basePath || ''}/workouts/search-result${qs}`);
 });
 
 module.exports = router;

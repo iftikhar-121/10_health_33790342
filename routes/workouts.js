@@ -5,7 +5,9 @@ const router = express.Router();
 
 // Middleware to protect routes - redirects to login if not authenticated
 function redirectLogin(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user) {
+    return res.redirect((res.locals.basePath || '') + '/login');
+  }
   next();
 }
 
@@ -107,7 +109,8 @@ router.post('/workout-added', redirectLogin,
         'INSERT INTO workouts (user_id, date, type, duration_minutes, intensity, notes) VALUES (?,?,?,?,?,?)',
         [user_id, date, type, duration_minutes, intensity, notes || null]
       );
-      res.redirect('/workouts/list');
+      // Redirect with basePath
+      res.redirect((res.locals.basePath || '') + '/workouts/list');
     } catch (err) {
       res.status(400).render('addworkout', { title: 'Add Workout', errors: ['Unable to save workout'], values: req.body });
     }

@@ -6,7 +6,10 @@ const router = express.Router();
 
 // Middleware to protect routes - redirects to login if not authenticated
 function redirectLogin(req, res, next) {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user) {
+    // Use the detected base path for redirect
+    return res.redirect((res.locals.basePath || '') + '/login');
+  }
   next();
 }
 
@@ -37,8 +40,8 @@ router.post('/registered',
     const { username, email, first_name, last_name, password } = req.body;
     const values = { username, email, first_name, last_name };
     try {
-  const result = validationResult(req);
-  const errors = result.isEmpty() ? [] : result.array().map(e => e.msg);
+      const result = validationResult(req);
+      const errors = result.isEmpty() ? [] : result.array().map(e => e.msg);
       // Duplicate checks
       const [u] = await req.db.execute('SELECT user_id FROM users WHERE username = ?', [username]);
       const [e] = await req.db.execute('SELECT user_id FROM users WHERE email = ?', [email]);
@@ -76,7 +79,8 @@ router.post('/loggedin', async (req, res, next) => {
     }
     req.session.user = { user_id: user.user_id, username: user.username };
     await logAudit(req, { username, action: 'login', status: 'success' });
-    res.redirect('/');
+    // Redirect with basePath
+    res.redirect((res.locals.basePath || '') + '/');
   } catch (err) { next(err); }
 });
 

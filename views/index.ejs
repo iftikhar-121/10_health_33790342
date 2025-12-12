@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title><%= title %></title>
-  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="<%= basePath %>/main.css">
 </head>
 <body>
   <%- include('partials/nav') %>
@@ -12,13 +12,13 @@
     <p>Track your workouts, monitor your progress, and achieve your fitness goals.</p>
     <% if (!user) { %>
       <div class="cta-buttons">
-        <a href="/register" class="btn">Get Started</a>
-        <a href="/login" class="btn secondary">Login</a>
+        <a href="<%= basePath %>/register" class="btn">Get Started</a>
+        <a href="<%= basePath %>/login" class="btn secondary">Login</a>
       </div>
     <% } else { %>
       <div class="cta-buttons">
-        <a href="/workouts/add-workout" class="btn">Add Workout</a>
-        <a href="/workouts/list" class="btn secondary">View My Workouts</a>
+        <a href="<%= basePath %>/workouts/add-workout" class="btn">Add Workout</a>
+        <a href="<%= basePath %>/workouts/list" class="btn secondary">View My Workouts</a>
       </div>
     <% } %>
   </div>

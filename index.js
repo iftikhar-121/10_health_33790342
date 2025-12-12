@@ -11,7 +11,6 @@ const path = require('path');
 const mysql = require('mysql2/promise');
 
 const PORT = process.env.PORT || 8000;
-const BASE_PATH = process.env.HEALTH_BASE_PATH || `http://localhost:${PORT}`;
 
 // MySQL connection pool for efficient database access
 const pool = mysql.createPool({
@@ -45,6 +44,8 @@ app.use(session({
 
 // Serve static files (CSS, JS, images)
 app.use(express.static(path.join(__dirname, 'public')));
+// Also serve static files under the VM subpath if needed
+app.use('/usr', express.static(path.join(__dirname, 'public')));
 
 // Make database connection available to all routes
 app.use((req, res, next) => {
@@ -52,10 +53,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Make user session available to all templates
+// Middleware to detect Base Path and User Session
 app.use((req, res, next) => {
-  res.locals.basePath = BASE_PATH;
+  // 1. Auto-detect base path (e.g., /usr/142) from the URL
+  const match = req.originalUrl.match(/^\/usr\/\d+/);
+  const basePath = match ? match[0] : '';
+  
+  // 2. Make variables available to all templates and routes
+  res.locals.basePath = basePath;
   res.locals.user = req.session.user || null;
+  
   next();
 });
 

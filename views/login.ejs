@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title><%= title %></title>
-  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="<%= basePath %>/main.css">
 </head>
 <body>
   <%- include('partials/nav') %>
@@ -13,7 +13,7 @@
       <%= message %>
     </div>
   <% } %>
-  <form method="POST" action="/loggedin">
+  <form method="POST" action="<%= basePath %>/loggedin">
     <label>Username</label>
     <input type="text" name="username" required placeholder="Enter your username" autofocus>
     
@@ -24,7 +24,8 @@
   </form>
   
   <p style="text-align: center; margin-top: 1rem;">
-    Don't have an account? <a href="/register" style="color: #3498db;">Create one here</a>
+    Don't have an account?
+    <a href="<%= basePath %>/register" style="color: #3498db;">Create one here</a>
   </p>
 </body>
 </html>
