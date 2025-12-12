@@ -1,17 +1,15 @@
-// Exercise Service - API-Ninjas integration for workout suggestions
-const fetch = require('node-fetch'); 
-const API_NINJAS_BASE = 'https://api.api-ninjas.com/v1';
+// Exercise Service - Native HTTPS version (No node-fetch required)
+const https = require('https');
 
-// Fetch exercise suggestions from API-Ninjas based on workout type
-async function fetchExerciseSuggestions(workoutType) {
-  try {
+// Fetch exercise suggestions from API-Ninjas
+function fetchExerciseSuggestions(workoutType) {
+  return new Promise((resolve) => {
     const apiKey = process.env.API_NINJAS_KEY;
     
     if (!apiKey) {
-      return getFallbackExercises(workoutType);
+      return resolve(getFallbackExercises(workoutType));
     }
 
-    // Map our workout types to API-Ninjas exercise types
     const typeMapping = {
       cardio: 'cardio',
       strength: 'strength',
@@ -22,54 +20,61 @@ async function fetchExerciseSuggestions(workoutType) {
     };
 
     const searchType = typeMapping[workoutType] || 'cardio';
-    const url = `${API_NINJAS_BASE}/exercises?type=${searchType}&offset=0`;
-    
-    const response = await fetch(url, {
-      method: 'GET',
+    const url = `https://api.api-ninjas.com/v1/exercises?type=${searchType}&offset=0`;
+
+    const options = {
       headers: {
         'X-Api-Key': apiKey,
         'Accept': 'application/json'
       },
-      timeout: 5000 // Simplified timeout for node-fetch v2
+      timeout: 5000
+    };
+
+    const req = https.get(url, options, (res) => {
+      if (res.statusCode !== 200) {
+        console.error(`API Status: ${res.statusCode}`);
+        return resolve(getFallbackExercises(workoutType));
+      }
+
+      let data = '';
+      res.on('data', (chunk) => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (!json || json.length === 0) return resolve(getFallbackExercises(workoutType));
+
+          const exercises = json.slice(0, 3).map(ex => ({
+            name: ex.name || 'Exercise',
+            description: ex.instructions ? stripHtml(ex.instructions) : 'A great exercise.',
+            equipment: ex.equipment || 'None',
+            difficulty: ex.difficulty || 'intermediate',
+            muscle: ex.muscle || 'various'
+          }));
+          resolve(exercises);
+        } catch (e) {
+          resolve(getFallbackExercises(workoutType));
+        }
+      });
     });
 
-    if (!response.ok) {
-      throw new Error(`API responded with status ${response.status}`);
-    }
-
-    const data = await response.json();
+    req.on('error', (e) => {
+      console.error('API Error:', e.message);
+      resolve(getFallbackExercises(workoutType));
+    });
     
-    if (!data || data.length === 0) {
-      return getFallbackExercises(workoutType);
-    }
-    
-    const exercises = data
-      .slice(0, 3)
-      .map(ex => ({
-        name: ex.name || 'Exercise',
-        description: ex.instructions ? stripHtml(ex.instructions) : 'A great exercise.',
-        equipment: ex.equipment || 'None',
-        difficulty: ex.difficulty || 'intermediate',
-        muscle: ex.muscle || 'various'
-      }));
-
-    return exercises;
-
-  } catch (error) {
-    console.error('Error fetching exercise suggestions:', error.message);
-    return getFallbackExercises(workoutType);
-  }
+    req.on('timeout', () => {
+      req.destroy();
+      resolve(getFallbackExercises(workoutType));
+    });
+  });
 }
 
-// Strip HTML tags and fix UTF-8 encoding issues
 function stripHtml(html) {
   if (!html) return '';
   let stripped = html.replace(/<[^>]*>/g, '').trim();
-  // ... (keep your existing replacement logic here, it was fine)
   return stripped.length > 100 ? stripped.slice(0, 100) + '...' : stripped;
 }
 
-// ... (Keep getFallbackExercises exactly as it was)
 function getFallbackExercises(workoutType) {
   const fallbacks = {
     cardio: [

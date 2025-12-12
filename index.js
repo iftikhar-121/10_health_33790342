@@ -25,6 +25,12 @@ const pool = mysql.createPool({
 
 const app = express();
 
+// Trust the proxy so cookies work !!!
+app.set('trust proxy', 1);
+
+// Configure EJS templating engine
+app.set('view engine', 'ejs');
+
 // Configure EJS templating engine
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -39,7 +45,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET || 'changeme',
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true }
+  // Add 'sameSite: lax' to help with browser redirect behavior
+  cookie: { 
+    httpOnly: true,
+    sameSite: 'lax'
+  }
 }));
 
 // Serve static files (CSS, JS, images)
