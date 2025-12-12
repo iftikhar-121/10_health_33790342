@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8">
   <title><%= title %></title>
-  <link rel="stylesheet" href="/main.css">
+  <link rel="stylesheet" href="<%= basePath %>/main.css">
 </head>
 <body>
   <%- include('partials/nav') %>
-  <h1>📝 Add Workout</h1>
+  <h1>💪 Add Workout</h1>
   <% if (errors && errors.length) { %>
     <div class="error">
       <strong>Please fix the following errors:</strong>
@@ -32,7 +32,7 @@
             <% } %>
             <br>
             <small style="color: #555;"><%= ex.description %></small><br>
-            <small style="color: #777;">🏋️ Equipment: <%= ex.equipment %></small>
+            <small style="color: #777;">🛠️ Equipment: <%= ex.equipment %></small>
           </li>
         <% }) %>
       </ul>
@@ -40,7 +40,7 @@
     </div>
   <% } %>
   
-  <form method="POST" action="/workouts/workout-added">
+  <form method="POST" action="<%= basePath %>/workouts/workout-added">
     <label>Date *</label>
     <input type="date" name="date" required value="<%= values.date || new Date().toISOString().slice(0,10) %>">
 
@@ -67,10 +67,10 @@
     <label>Notes (Optional)</label>
     <textarea name="notes" rows="4" placeholder="Add any additional notes about this workout..."><%= values.notes || '' %></textarea>
 
-    <button type="submit">💪 Save Workout</button>
-    <a href="/workouts/list" class="btn secondary">Cancel</a>
+    <button type="submit">💾 Save Workout</button>
+    <a href="<%= basePath %>/workouts/list" class="btn secondary">Cancel</a>
   </form>
 
-  <script src="/addworkout.js"></script>
+  <script src="<%= basePath %>/addworkout.js?v=2"></script>
 </body>
 </html>

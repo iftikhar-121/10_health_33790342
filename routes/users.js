@@ -1,35 +1,29 @@
-// User Routes - Registration, login, and authentication
+// ... existing imports
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
 const router = express.Router();
 
-// Middleware to protect routes - redirects to login if not authenticated
 function redirectLogin(req, res, next) {
   if (!req.session.user) {
-    // Use the detected base path for redirect
     return res.redirect((res.locals.basePath || '') + '/login');
   }
   next();
 }
 
-// Audit logging function for tracking user actions and security events
 async function logAudit(req, { username, action, status, details }) {
   try {
     await req.db.execute(
       'INSERT INTO audit_log (username, action, status, ip, user_agent, details) VALUES (?,?,?,?,?,?)',
       [username || 'unknown', action, status, req.ip, req.headers['user-agent'] || '', details || null]
     );
-  } catch (e) {
-    // swallow audit errors
-  }
+  } catch (e) {}
 }
 
 router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', errors: [], values: {} });
 });
 
-// Handle user registration with validation and password hashing
 router.post('/registered',
   body('username').trim().isLength({ min: 3 }).escape(),
   body('email').isEmail().normalizeEmail(),
@@ -42,12 +36,12 @@ router.post('/registered',
     try {
       const result = validationResult(req);
       const errors = result.isEmpty() ? [] : result.array().map(e => e.msg);
-      // Duplicate checks
+      
       const [u] = await req.db.execute('SELECT user_id FROM users WHERE username = ?', [username]);
       const [e] = await req.db.execute('SELECT user_id FROM users WHERE email = ?', [email]);
       if (u.length) errors.push('Username already taken');
       if (e.length) errors.push('Email already registered');
-      // Basic validator outcome (we could use validationResult, but keeping minimal)
+      
       if (errors.length) {
         return res.status(400).render('register', { title: 'Register', errors, values });
       }
@@ -65,7 +59,6 @@ router.get('/login', (req, res) => {
   res.render('login', { title: 'Login', message: null });
 });
 
-// Handle login with bcrypt password verification and session creation
 router.post('/loggedin', async (req, res, next) => {
   const { username, password } = req.body;
   try {
@@ -77,10 +70,18 @@ router.post('/loggedin', async (req, res, next) => {
       await logAudit(req, { username, action: 'login', status: 'failure', details: 'Bad password' });
       return res.render('login', { title: 'Login', message: 'Invalid credentials.' });
     }
+    
+    // Set user session
     req.session.user = { user_id: user.user_id, username: user.username };
     await logAudit(req, { username, action: 'login', status: 'success' });
-    // Redirect with basePath
-    res.redirect((res.locals.basePath || '') + '/');
+    
+    // FORCE SESSION SAVE before redirecting to ensure login persists
+    req.session.save((err) => {
+      if (err) console.error('Session save error:', err);
+      // Redirect to home with basePath
+      res.redirect((res.locals.basePath || '') + '/');
+    });
+    
   } catch (err) { next(err); }
 });
 
